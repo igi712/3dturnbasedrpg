@@ -1,0 +1,32 @@
+[gd_scene load_steps=5 format=3 uid="uid://dn51iw300i7tv"]
+
+[ext_resource type="PackedScene" uid="uid://bih4d8csawuby" path="res://battle_ui.tscn" id="1_bx1f6"]
+[ext_resource type="PackedScene" uid="uid://dynytqm5202ra" path="res://character.tscn" id="2_1o8xg"]
+[ext_resource type="Script" uid="uid://dynqc0rml5qpa" path="res://BattleManager.cs" id="3_a16jg"]
+
+[sub_resource type="BoxMesh" id="BoxMesh_w7wwj"]
+size = Vector3(20, 0.1, 20)
+
+[node name="BattleArena" type="Node3D"]
+
+[node name="BattleUI" parent="." instance=ExtResource("1_bx1f6")]
+
+[node name="Player" parent="." instance=ExtResource("2_1o8xg")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -5, 1, -5)
+
+[node name="Floor" type="MeshInstance3D" parent="."]
+mesh = SubResource("BoxMesh_w7wwj")
+
+[node name="Camera3D" type="Camera3D" parent="."]
+transform = Transform3D(-0.707107, 0.353553, -0.612372, 0, 0.866025, 0.5, 0.707107, 0.353553, -0.612372, -10, 4, -10)
+
+[node name="DirectionalLight3D" type="DirectionalLight3D" parent="."]
+transform = Transform3D(0.866025, 0.5, 0, -0.12941, 0.224144, 0.965926, 0.482963, -0.836516, 0.258819, 0, 0, 0)
+
+[node name="Enemy" parent="." instance=ExtResource("2_1o8xg")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 5, 2, 5)
+CharacterName = "Enemy"
+
+[node name="BattleManager" type="Node" parent="." node_paths=PackedStringArray("AllCharacters")]
+script = ExtResource("3_a16jg")
+AllCharacters = [NodePath("../Player"), NodePath("../Enemy")]

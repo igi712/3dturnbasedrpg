@@ -1,0 +1,33 @@
+[gd_scene load_steps=2 format=3 uid="uid://bih4d8csawuby"]
+
+[ext_resource type="Script" uid="uid://cb6xexirpgvhf" path="res://BattleUI.cs" id="1_qyamm"]
+
+[node name="BattleUI" type="Control"]
+layout_mode = 3
+anchors_preset = 0
+offset_right = 40.0
+offset_bottom = 40.0
+script = ExtResource("1_qyamm")
+
+[node name="AttackButton" type="Button" parent="."]
+layout_mode = 1
+anchors_preset = 3
+anchor_left = 1.0
+anchor_top = 1.0
+anchor_right = 1.0
+anchor_bottom = 1.0
+offset_left = 1043.0
+offset_top = 574.0
+offset_right = 1101.0
+offset_bottom = 605.0
+grow_horizontal = 0
+grow_vertical = 0
+text = "Attack"
+
+[node name="TurnInfoLabel" type="Label" parent="."]
+layout_mode = 0
+offset_right = 40.0
+offset_bottom = 23.0
+text = "Test"
+
+[connection signal="pressed" from="AttackButton" to="." method="_on_attack_button_pressed"]

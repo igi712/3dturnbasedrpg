@@ -1,0 +1,13 @@
+[gd_scene load_steps=3 format=3 uid="uid://dynytqm5202ra"]
+
+[ext_resource type="Script" uid="uid://c5jhi74xksny0" path="res://Character.cs" id="1_glpr6"]
+
+[sub_resource type="CapsuleMesh" id="CapsuleMesh_pjt0s"]
+
+[node name="Character" type="Node3D"]
+script = ExtResource("1_glpr6")
+
+[node name="MeshInstance3D" type="MeshInstance3D" parent="."]
+mesh = SubResource("CapsuleMesh_pjt0s")
+
+[node name="AnimationPlayer" type="AnimationPlayer" parent="."]

@@ -1,33 +1,19 @@
-[gd_scene load_steps=2 format=3 uid="uid://bih4d8csawuby"]
+[gd_scene load_steps=3 format=3 uid="uid://bih4d8csawuby"]
 
 [ext_resource type="Script" uid="uid://cb6xexirpgvhf" path="res://BattleUI.cs" id="1_qyamm"]
+[ext_resource type="PackedScene" uid="uid://be4262x714bdd" path="res://crosshair.tscn" id="2_kf0y4"]
 
 [node name="BattleUI" type="Control"]
 layout_mode = 3
-anchors_preset = 0
-offset_right = 40.0
-offset_bottom = 40.0
-script = ExtResource("1_qyamm")
-
-[node name="AttackButton" type="Button" parent="."]
-layout_mode = 1
-anchors_preset = 3
-anchor_left = 1.0
-anchor_top = 1.0
+anchors_preset = 15
 anchor_right = 1.0
 anchor_bottom = 1.0
-offset_left = 1043.0
-offset_top = 574.0
-offset_right = 1101.0
-offset_bottom = 605.0
-grow_horizontal = 0
-grow_vertical = 0
-text = "Attack"
+grow_horizontal = 2
+grow_vertical = 2
+script = ExtResource("1_qyamm")
+CrosshairScene = ExtResource("2_kf0y4")
 
-[node name="TurnInfoLabel" type="Label" parent="."]
+[node name="TurnOrderBar" type="VBoxContainer" parent="."]
 layout_mode = 0
 offset_right = 40.0
-offset_bottom = 23.0
-text = "Test"
-
-[connection signal="pressed" from="AttackButton" to="." method="_on_attack_button_pressed"]
+offset_bottom = 40.0

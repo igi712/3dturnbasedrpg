@@ -5,36 +5,35 @@ using System.Linq; // Diperlukan untuk FirstOrDefault
 
 public partial class BattleUI : Control
 {
-	private Button _attackButton;
-	private Label _turnInfoLabel;
+	private VBoxContainer _turnOrderBar;
 	private BattleManager _battleManager;
+
+	// Target yang dipilih untuk diserang
+	private Character _selectedTarget;
+
+	[Export] public PackedScene CrosshairScene { get; set; }
+	private Control _crosshairInstance;
 
 	public override void _Ready()
 	{
-		_attackButton = GetNode<Button>("AttackButton"); // Pastikan nama node ini "AttackButton" di scene UI Anda
-		_turnInfoLabel = GetNode<Label>("TurnInfoLabel"); // Pastikan nama node ini "TurnInfoLabel" di scene UI Anda
-		
-		if (_attackButton == null) GD.PrintErr("AttackButton not found in BattleUI!");
-		if (_turnInfoLabel == null) GD.PrintErr("TurnInfoLabel not found in BattleUI!");
+		// No AttackButton node anymore
+		_turnOrderBar = GetNode<VBoxContainer>("TurnOrderBar");
 
-		_attackButton.Pressed += _on_attack_button_pressed; // Hubungkan sinyal tombol ke metode
+		if (_turnOrderBar == null) GD.PrintErr("TurnOrderBar not found in BattleUI!");
 
-		// Dapatkan referensi ke BattleManager
-		// Pastikan path ini benar sesuai struktur scene Anda
-		_battleManager = GetTree().Root.GetNode<BattleManager>("BattleArena/BattleManager"); 
-		
+		_battleManager = GetTree().Root.GetNode<BattleManager>("BattleArena/BattleManager");
 		if (_battleManager != null)
 		{
-			// 3. Hubungkan sinyal dari _battleManager ke metode OnNewTurn di instance BattleUI ini
+			var enemies = _battleManager.GetAliveEnemies();
+			if (enemies.Count > 0)
+			{
+				_selectedTarget = enemies[0];
+			}
 			_battleManager.Connect(BattleManager.SignalName.NewTurnStarted, Callable.From(OnNewTurn));
 			GD.Print("BattleUI connected to BattleManager's NewTurnStarted signal.");
-			
-			// Panggil UpdateTurnInfo sekali di awal untuk setup UI awal jika battle sudah dimulai
-			// Ini penting jika BattleManager memulai battle di _Ready() sebelum UI siap sepenuhnya.
-			// Atau, BattleManager bisa emit sinyal setelah battle benar-benar siap.
 			if (_battleManager.CurrentTurnCharacter != null)
 			{
-				 UpdateTurnInfo();
+				UpdateTurnInfo();
 			}
 		}
 		else
@@ -45,26 +44,40 @@ public partial class BattleUI : Control
 
 	public void UpdateTurnInfo()
 	{
-		if (_battleManager?.CurrentTurnCharacter != null && _battleManager.CurrentTurnCharacter.CurrentHp > 0)
+		if (_battleManager == null || _battleManager.CurrentTurnCharacter == null)
+			return;
+
+		for (int i = _turnOrderBar.GetChildCount() - 1; i >= 0; i--)
 		{
-			_turnInfoLabel.Text = $"{_battleManager.CurrentTurnCharacter.CharacterName}'s Turn. HP: {_battleManager.CurrentTurnCharacter.CurrentHp}/{_battleManager.CurrentTurnCharacter.MaxHp}";
-			_attackButton.Disabled = _battleManager.CurrentTurnCharacter.CharacterName.Contains("Enemy"); // Identifikasi lebih baik
+			_turnOrderBar.GetChild(i).QueueFree();
 		}
-		else if (_battleManager?.CurrentTurnCharacter != null && _battleManager.CurrentTurnCharacter.CurrentHp <= 0)
+
+		// Ambil urutan giliran dari BattleManager (akses internal _turnOrder via refleksi jika perlu)
+		var turnOrder = typeof(BattleManager)
+			.GetMethod("GetSortedTurnOrder", System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Instance)
+			.Invoke(_battleManager, null) as System.Collections.Generic.List<Character>;
+
+		if (turnOrder == null) return;
+
+		for (int i = 0; i < turnOrder.Count; i++)
 		{
-			 _turnInfoLabel.Text = $"{_battleManager.CurrentTurnCharacter.CharacterName} is defeated.";
-			 _attackButton.Disabled = true;
-		}
-		else
-		{
-			// Cek kondisi battle end dari BattleManager
-			if (_battleManager != null && _battleManager.CheckBattleEnd()) { // Tambahkan metode CheckBattleEnd() yang bisa diakses publik jika perlu
-				 _turnInfoLabel.Text = "Battle Ended!"; // Atau pesan kemenangan/kekalahan spesifik
-			} else {
-				 _turnInfoLabel.Text = "Waiting for battle to start or character data...";
+			var character = turnOrder[i];
+			var label = new Label();
+			if (character.ActionValue == 0)
+			{
+				label.Text = $"{character.CharacterName}";
+				label.AddThemeColorOverride("font_color", new Color(1, 1, 0)); // Highlight kuning
+				label.AddThemeFontSizeOverride("font_size", 22);
+				label.Text = $"> {label.Text} <";
 			}
-			_attackButton.Disabled = true;
+			else
+			{
+				label.Text = $"{character.CharacterName} {character.ActionValue}";
+			}
+			_turnOrderBar.AddChild(label);
 		}
+
+		// Remove EnsureCrosshairVisibleIfPlayerTurn from here
 	}
 
 	// Metode ini akan dipanggil oleh sinyal
@@ -72,31 +85,159 @@ public partial class BattleUI : Control
 	{
 		GD.Print("BattleUI.OnNewTurn() called by signal.");
 		UpdateTurnInfo();
-	}
-
-	private void _on_attack_button_pressed()
-	{
-		if (_battleManager != null && 
-			_battleManager.CurrentTurnCharacter != null && 
-			!_battleManager.CurrentTurnCharacter.CharacterName.Contains("Enemy")) // Identifikasi lebih baik
+		GD.Print("Current turn character: " + _battleManager.CurrentTurnCharacter?.CharacterName);
+		GD.Print("Is action in progress: " + _battleManager.IsActionInProgress);
+		if (_battleManager.CurrentTurnCharacter != null && _battleManager.CurrentTurnCharacter.IsAlly && !_battleManager.IsActionInProgress)
 		{
-			// Untuk MVP, asumsikan pemain menyerang musuh pertama yang hidup
-			// Pastikan _battleManager.AllCharacters sudah terisi dengan benar
-			Character enemyTarget = _battleManager.AllCharacters.FirstOrDefault(
-				c => c != null && c.CharacterName.Contains("Enemy") && c.CurrentHp > 0
-			); 
-
-			if (enemyTarget != null)
+			// Always reset target selection at the start of player's turn
+			ResetTargetSelection();
+			GD.Print("Selected target: " + _selectedTarget?.CharacterName);
+			if (_selectedTarget != null)
 			{
-				_battleManager.PlayerPerformAttack(enemyTarget);
-				// UpdateTurnInfo() akan dipanggil oleh sinyal NewTurnStarted saat giliran berikutnya dimulai
+				UpdateTargetCrosshair();
 			}
 			else
 			{
-				GD.Print("No enemy target found or all enemies defeated.");
-				// Jika tidak ada musuh lagi, mungkin battle seharusnya sudah berakhir.
-				// BattleManager.CheckBattleEnd() akan menangani ini.
+				HideCrosshair();
 			}
 		}
+		else
+		{
+			// For enemy turns, always hide crosshair and do not print or update _selectedTarget
+			HideCrosshair();
+		}
+	}
+
+	public override void _UnhandledInput(InputEvent @event)
+	{
+		if (_battleManager == null || !_battleManager.CurrentTurnCharacter.IsAlly || _battleManager.IsActionInProgress)
+			return;
+
+		// Ensure _selectedTarget is always valid on player's turn
+		if (_selectedTarget == null)
+		{
+			var enemies = _battleManager.GetAliveEnemies();
+			if (enemies.Count > 0)
+			{
+				_selectedTarget = enemies[0];
+				UpdateTargetCrosshair();
+			}
+		}
+
+		if (@event is InputEventKey keyEvent && keyEvent.Pressed)
+		{
+			if (Input.IsActionJustPressed("basic_attack"))
+			{
+				if (_selectedTarget != null)
+				{
+					HideCrosshair(); // Hide crosshair immediately when action is ordered
+					_battleManager.PlayerPerformAttack(_selectedTarget);
+				}
+			}
+			else if (Input.IsActionJustPressed("target_left"))
+			{
+				SelectNextTarget(-1);
+			}
+			else if (Input.IsActionJustPressed("target_right"))
+			{
+				SelectNextTarget(1);
+			}
+			// For future: skill, ultimate_1, ultimate_2, ultimate_3
+		}
+	}
+
+	private void SelectNextTarget(int direction)
+	{
+		var enemies = _battleManager.GetAliveEnemies();
+		if (enemies.Count == 0) {
+			HideCrosshair();
+			return;
+		}
+		int idx = _selectedTarget != null ? enemies.IndexOf(_selectedTarget) : -1;
+		if (idx == -1) idx = enemies.Count - 1; // Default to rightmost if no target
+		// Reverse direction so left means leftmost visually
+		idx = (idx - direction + enemies.Count) % enemies.Count;
+		_selectedTarget = enemies[idx];
+		UpdateTargetCrosshair();
+	}
+
+	private void UpdateTargetCrosshair()
+	{
+		// Only show crosshair if it's player's turn and not waiting for input
+		bool isPlayerTurn = _battleManager.CurrentTurnCharacter != null && _battleManager.CurrentTurnCharacter.IsAlly && !_battleManager.IsActionInProgress;
+		if (_selectedTarget != null && isPlayerTurn)
+		{
+			// Try to get the main model node (Skeleton, MeshInstance3D, or fallback to root)
+			Node3D modelNode = _selectedTarget.GetNodeOrNull<Node3D>("Skeleton");
+			if (modelNode == null) modelNode = _selectedTarget.GetNodeOrNull<Node3D>("MeshInstance3D");
+			if (modelNode == null) modelNode = _selectedTarget; // fallback to root
+			var camera = GetViewport().GetCamera3D();
+			if (modelNode != null && camera != null)
+			{
+				Vector3 worldPos = modelNode.GlobalTransform.Origin;
+				Vector2 screenPos = camera.UnprojectPosition(worldPos);
+				ShowCrosshair(screenPos);
+				GD.Print($"Crosshair updated for target {_selectedTarget.CharacterName} at {screenPos}");
+				return;
+			}
+		}
+		HideCrosshair();
+		GD.Print("Crosshair hidden because no valid target or not player's turn.");
+	}
+
+	public void ShowCrosshair(Vector2 screenPos)
+	{
+		if (_crosshairInstance == null)
+		{
+			if (CrosshairScene == null)
+			{
+				GD.PrintErr("CrosshairScene not assigned in the inspector!");
+				return;
+			}
+			_crosshairInstance = CrosshairScene.Instantiate<Control>();
+			var hpBarsLayer = GetTree().Root.GetNodeOrNull<CanvasLayer>("BattleArena/HPBarsLayer");
+			if (hpBarsLayer != null)
+				hpBarsLayer.AddChild(_crosshairInstance);
+		}
+		// Only show if player's turn and not waiting
+		bool isPlayerTurn = _battleManager != null && _battleManager.CurrentTurnCharacter != null && _battleManager.CurrentTurnCharacter.IsAlly && !_battleManager.IsActionInProgress;
+		_crosshairInstance.Visible = isPlayerTurn;
+		_crosshairInstance.GlobalPosition = screenPos;
+		GD.Print($"Crosshair shown at {screenPos} for target {_selectedTarget?.CharacterName}");
+	}
+	public void HideCrosshair()
+	{
+		if (_crosshairInstance != null)
+			_crosshairInstance.Visible = false;
+		GD.Print("Crosshair hidden.");
+	}
+
+	// Call this to reset the selected target after an enemy dies
+	public void ResetTargetSelection()
+	{
+		if (_battleManager == null) return;
+
+		var enemies = _battleManager.GetAliveEnemies();
+
+		if (enemies.Count == 0)
+		{
+			_selectedTarget = null;
+			HideCrosshair();
+			GD.Print("No alive enemies left, target set to null.");
+			return;
+		}
+
+		// Check if the current target is invalid (has been freed) or is dead.
+		// IsInstanceValid is crucial for checking objects that might have been QueueFree'd.
+		if (!IsInstanceValid(_selectedTarget) || _selectedTarget.CurrentHp <= 0)
+		{
+			// If the target is invalid, select the first living enemy as the new default.
+			_selectedTarget = enemies[0];
+			GD.Print($"Previous target was invalid. Resetting to first available enemy: {_selectedTarget.CharacterName}");
+		}
+		// If the target is still valid and alive, we do nothing, preserving the player's last selection.
+
+		// Finally, ensure the crosshair is visible and correctly positioned.
+		UpdateTargetCrosshair();
 	}
 }

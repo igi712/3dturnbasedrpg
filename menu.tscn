@@ -1,0 +1,87 @@
+[gd_scene load_steps=12 format=3 uid="uid://bqtbg5mkpu6i4"]
+
+[ext_resource type="Script" uid="uid://c8ulonmcw0w2m" path="res://Menu.cs" id="1_h1wq0"]
+[ext_resource type="Texture2D" uid="uid://ctsl42p55w1sq" path="res://ui/bg_adv_20493.jpg" id="1_iqepy"]
+[ext_resource type="Texture2D" uid="uid://cdhshrg6j8v8b" path="res://ui/BtnSelectStage.png" id="2_h1wq0"]
+[ext_resource type="Texture2D" uid="uid://dc1pppxxrjjs2" path="res://ui/BtnSelectStage_p.png" id="3_dwrpx"]
+[ext_resource type="Texture2D" uid="uid://c5pdgw87k1yne" path="res://ui/BtnSelectStage_h.png" id="4_g7jxm"]
+[ext_resource type="Texture2D" uid="uid://l0cc0pyb123m" path="res://ui/BtnGuide.png" id="5_jspdm"]
+[ext_resource type="Texture2D" uid="uid://cwgnl153tn5bj" path="res://ui/BtnGuide_p.png" id="6_oxnod"]
+[ext_resource type="Texture2D" uid="uid://cpoelv5d8qgkj" path="res://ui/BtnGuide_h.png" id="7_gd0jp"]
+[ext_resource type="Texture2D" uid="uid://bmm7l732id5r8" path="res://ui/BtnExit.png" id="8_4ndjb"]
+[ext_resource type="Texture2D" uid="uid://dbt5nvrn320ae" path="res://ui/BtnExit_p.png" id="9_3ls4m"]
+[ext_resource type="Texture2D" uid="uid://tc6auvvtvmfp" path="res://ui/BtnExit_h.png" id="10_5h80m"]
+
+[node name="Menu" type="Control"]
+layout_mode = 3
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+script = ExtResource("1_h1wq0")
+
+[node name="TextureRect" type="TextureRect" parent="."]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+offset_top = -150.0
+offset_bottom = 150.0
+grow_horizontal = 2
+grow_vertical = 2
+texture = ExtResource("1_iqepy")
+stretch_mode = 4
+
+[node name="MarginContainer" type="MarginContainer" parent="."]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+
+[node name="VBoxContainer" type="VBoxContainer" parent="MarginContainer"]
+layout_mode = 2
+size_flags_horizontal = 4
+size_flags_vertical = 4
+alignment = 1
+
+[node name="Title" type="Label" parent="MarginContainer/VBoxContainer"]
+layout_mode = 2
+theme_override_colors/font_outline_color = Color(1, 0.247059, 0.443137, 1)
+theme_override_constants/outline_size = 5
+theme_override_font_sizes/font_size = 48
+text = "Jiwaku untuk Tanah Pasundan"
+horizontal_alignment = 1
+vertical_alignment = 1
+
+[node name="MarginContainer" type="MarginContainer" parent="MarginContainer/VBoxContainer"]
+layout_mode = 2
+theme_override_constants/margin_top = 10
+theme_override_constants/margin_bottom = 10
+
+[node name="BtnSelectStage" type="TextureButton" parent="MarginContainer/VBoxContainer"]
+layout_mode = 2
+texture_normal = ExtResource("2_h1wq0")
+texture_pressed = ExtResource("3_dwrpx")
+texture_hover = ExtResource("4_g7jxm")
+stretch_mode = 3
+
+[node name="BtnGuide" type="TextureButton" parent="MarginContainer/VBoxContainer"]
+layout_mode = 2
+texture_normal = ExtResource("5_jspdm")
+texture_pressed = ExtResource("6_oxnod")
+texture_hover = ExtResource("7_gd0jp")
+stretch_mode = 3
+
+[node name="BtnExit" type="TextureButton" parent="MarginContainer/VBoxContainer"]
+layout_mode = 2
+texture_normal = ExtResource("8_4ndjb")
+texture_pressed = ExtResource("9_3ls4m")
+texture_hover = ExtResource("10_5h80m")
+stretch_mode = 3
+
+[connection signal="pressed" from="MarginContainer/VBoxContainer/BtnSelectStage" to="." method="_on_BtnSelectStage_pressed"]
+[connection signal="pressed" from="MarginContainer/VBoxContainer/BtnGuide" to="." method="_on_BtnGuide_pressed"]
+[connection signal="pressed" from="MarginContainer/VBoxContainer/BtnExit" to="." method="_on_BtnExit_pressed"]

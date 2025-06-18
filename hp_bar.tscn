@@ -9,15 +9,13 @@ bg_color = Color(0, 1, 0, 1)
 [node name="HPBar" type="Control"]
 layout_mode = 3
 anchors_preset = 0
-offset_right = 120.0
-offset_bottom = 12.0
 
 [node name="ProgressBar" type="ProgressBar" parent="."]
 layout_mode = 0
-offset_left = -60.0
-offset_top = -6.0
-offset_right = 60.0
-offset_bottom = 6.0
+offset_left = -30.0
+offset_top = -4.0
+offset_right = 30.0
+offset_bottom = 5.0
 theme_override_styles/background = SubResource("StyleBoxFlat_eqw0a")
 theme_override_styles/fill = SubResource("StyleBoxFlat_ybxu1")
 value = 100.0

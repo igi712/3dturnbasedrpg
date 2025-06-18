@@ -1,0 +1,21 @@
+[gd_scene load_steps=4 format=3 uid="uid://b47a3uf3k2dn6"]
+
+[ext_resource type="Script" uid="uid://irv82k4f2a3c" path="res://ProjectileMagic.cs" id="1_iahgr"]
+
+[sub_resource type="StandardMaterial3D" id="StandardMaterial3D_b4ykd"]
+emission_enabled = true
+emission = Color(0, 1, 0.501961, 1)
+
+[sub_resource type="SphereMesh" id="SphereMesh_0tekq"]
+material = SubResource("StandardMaterial3D_b4ykd")
+radius = 0.4
+height = 0.8
+
+[node name="ProjectileMagic" type="Node3D"]
+script = ExtResource("1_iahgr")
+
+[node name="ball" type="MeshInstance3D" parent="."]
+mesh = SubResource("SphereMesh_0tekq")
+
+[node name="OmniLight3D" type="OmniLight3D" parent="ball"]
+light_color = Color(0, 1, 0.501961, 1)

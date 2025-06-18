@@ -11,7 +11,7 @@ config_version=5
 [application]
 
 config/name="3DTurnBasedRPG"
-run/main_scene="uid://dn51iw300i7tv"
+run/main_scene="uid://bqtbg5mkpu6i4"
 config/features=PackedStringArray("4.4", "C#", "Forward Plus")
 config/icon="res://icon.svg"
 

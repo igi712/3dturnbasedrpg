@@ -1,0 +1,32 @@
+[gd_scene load_steps=6 format=3 uid="uid://b53a6gpndo4cp"]
+
+[ext_resource type="Texture2D" uid="uid://c2fewxpp057fk" path="res://ui/bg_adv_narration.jpg" id="1_8xfnh"]
+[ext_resource type="Script" uid="uid://bu83bsixahkna" path="res://Narration.cs" id="2_narration"]
+[ext_resource type="Texture2D" uid="uid://d0d63evtaffae" path="res://ui/BtnBack.png" id="3_5os1l"]
+[ext_resource type="Texture2D" uid="uid://dmgstb6lbq3gf" path="res://ui/BtnBack_p.png" id="4_r0f4c"]
+[ext_resource type="Texture2D" uid="uid://bq0ihanmv7wdp" path="res://ui/BtnBack_h.png" id="5_2tarr"]
+
+[node name="Narration" type="Control"]
+layout_mode = 3
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+script = ExtResource("2_narration")
+
+[node name="TextureRect" type="TextureRect" parent="."]
+layout_mode = 0
+offset_top = -150.0
+offset_right = 1600.0
+offset_bottom = 1050.0
+texture = ExtResource("1_8xfnh")
+
+[node name="BtnBack" type="TextureButton" parent="."]
+offset_right = 40.0
+offset_bottom = 40.0
+texture_normal = ExtResource("3_5os1l")
+texture_pressed = ExtResource("4_r0f4c")
+texture_hover = ExtResource("5_2tarr")
+
+[connection signal="pressed" from="BtnBack" to="." method="_on_BtnBack_pressed"]

@@ -167,14 +167,19 @@ public partial class BattleUI : Control
 		bool isPlayerTurn = _battleManager.CurrentTurnCharacter != null && _battleManager.CurrentTurnCharacter.IsAlly && !_battleManager.IsActionInProgress;
 		if (_selectedTarget != null && isPlayerTurn)
 		{
-			// Try to get the main model node (Skeleton, MeshInstance3D, or fallback to root)
-			Node3D modelNode = _selectedTarget.GetNodeOrNull<Node3D>("Skeleton");
-			if (modelNode == null) modelNode = _selectedTarget.GetNodeOrNull<Node3D>("MeshInstance3D");
-			if (modelNode == null) modelNode = _selectedTarget; // fallback to root
-			var camera = GetViewport().GetCamera3D();
-			if (modelNode != null && camera != null)
+			// Move crosshair to HurtEffectAnchor if available
+			Node3D anchor = _selectedTarget.GetNodeOrNull<Node3D>("HurtEffectAnchor");
+			if (anchor == null)
 			{
-				Vector3 worldPos = modelNode.GlobalTransform.Origin;
+				// Fallback to Skeleton, MeshInstance3D, or root
+				anchor = _selectedTarget.GetNodeOrNull<Node3D>("Skeleton");
+				if (anchor == null) anchor = _selectedTarget.GetNodeOrNull<Node3D>("MeshInstance3D");
+				if (anchor == null) anchor = _selectedTarget;
+			}
+			var camera = GetViewport().GetCamera3D();
+			if (anchor != null && camera != null)
+			{
+				Vector3 worldPos = anchor.GlobalTransform.Origin;
 				Vector2 screenPos = camera.UnprojectPosition(worldPos);
 				ShowCrosshair(screenPos);
 				GD.Print($"Crosshair updated for target {_selectedTarget.CharacterName} at {screenPos}");

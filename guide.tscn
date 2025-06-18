@@ -1,0 +1,73 @@
+[gd_scene load_steps=7 format=3 uid="uid://8wn8lxioidgr"]
+
+[ext_resource type="Texture2D" uid="uid://ctsl42p55w1sq" path="res://ui/bg_adv_20493.jpg" id="1_4mqed"]
+[ext_resource type="Script" uid="uid://cs0w5kyriinvh" path="res://Guide.cs" id="1_utvnm"]
+[ext_resource type="Texture2D" uid="uid://gsbirhd3hxp3" path="res://ui/narration.png" id="2_feuw2"]
+[ext_resource type="Texture2D" uid="uid://d0d63evtaffae" path="res://ui/BtnBack.png" id="4_rn84f"]
+[ext_resource type="Texture2D" uid="uid://dmgstb6lbq3gf" path="res://ui/BtnBack_p.png" id="5_de3e4"]
+[ext_resource type="Texture2D" uid="uid://bq0ihanmv7wdp" path="res://ui/BtnBack_h.png" id="6_t7llt"]
+
+[node name="Guide" type="Control"]
+layout_mode = 3
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+script = ExtResource("1_utvnm")
+
+[node name="TextureRect" type="TextureRect" parent="."]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+offset_top = -150.0
+offset_bottom = 150.0
+grow_horizontal = 2
+grow_vertical = 2
+texture = ExtResource("1_4mqed")
+stretch_mode = 4
+
+[node name="TextureRect2" type="TextureRect" parent="."]
+layout_mode = 0
+offset_top = -150.0
+offset_right = 1600.0
+offset_bottom = 1050.0
+texture = ExtResource("2_feuw2")
+
+[node name="BtnBack" type="TextureButton" parent="."]
+offset_right = 40.0
+offset_bottom = 40.0
+texture_normal = ExtResource("4_rn84f")
+texture_pressed = ExtResource("5_de3e4")
+texture_hover = ExtResource("6_t7llt")
+
+[node name="Title" type="Label" parent="."]
+layout_mode = 1
+anchors_preset = 8
+anchor_left = 0.5
+anchor_top = 0.5
+anchor_right = 0.5
+anchor_bottom = 0.5
+offset_left = -350.5
+offset_top = -33.5
+offset_right = 350.5
+offset_bottom = 33.5
+grow_horizontal = 2
+grow_vertical = 2
+theme_override_colors/font_outline_color = Color(1, 0.247059, 0.443137, 1)
+theme_override_constants/outline_size = 5
+theme_override_font_sizes/font_size = 48
+text = "Ini adalah game turn-based RPG, sehingga karakter 
+tidak dikontrol secara langsung.
+Setiap karakter memiliki giliran tersendiri.
+Saat di gilirannya kamera akan berfokus di karakter tersebut
+Kontrol:
+Q/Spasi: Serangan Biasa
+A/Left Arrow: Pindahkan target serangan ke kiri
+D/Right Arrow: Pindahkan target serangan ke kanan
+"
+horizontal_alignment = 1
+vertical_alignment = 1
+
+[connection signal="pressed" from="BtnBack" to="." method="_on_BtnBack_pressed"]
